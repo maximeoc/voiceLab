@@ -1,0 +1,17 @@
+# Build artifacts
+/build/
+/dist/
+*.spec.bak
+
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+
+# Environnements virtuels
+.venv/
+venv/
+
+# Données utilisateur (config, historique, modèles téléchargés)
+*.log
