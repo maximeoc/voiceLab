@@ -45,20 +45,29 @@ class HotkeyListener:
         if self._pressed:
             return
         self._pressed = True
-        if self.mode == "toggle":
-            if self._recording:
-                self._recording = False
-                self.on_stop()
-            else:
-                self._recording = True
-                self.on_start()
-        else:  # push_to_talk
-            if not self._recording:
-                self._recording = True
-                self.on_start()
+        try:
+            if self.mode == "toggle":
+                if self._recording:
+                    self._recording = False
+                    self.on_stop()
+                else:
+                    self._recording = True
+                    self.on_start()
+            else:  # push_to_talk
+                if not self._recording:
+                    self._recording = True
+                    self.on_start()
+        except Exception:
+            # Une exception ici tuerait silencieusement le thread interne de
+            # `keyboard`, ce qui bloquerait définitivement `_on_release` et
+            # donc le raccourci (jusqu'au redémarrage de l'application).
+            logger.exception("Erreur lors du déclenchement du raccourci")
 
     def _on_release(self, _event) -> None:
         self._pressed = False
-        if self.mode == "push_to_talk" and self._recording:
-            self._recording = False
-            self.on_stop()
+        try:
+            if self.mode == "push_to_talk" and self._recording:
+                self._recording = False
+                self.on_stop()
+        except Exception:
+            logger.exception("Erreur lors du relâchement du raccourci")

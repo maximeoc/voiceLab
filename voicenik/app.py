@@ -74,7 +74,14 @@ class VoiceNikApp:
             if self.state != RECORDING:
                 return
             self.state = TRANSCRIBING
-        audio = self.recorder.stop()
+        try:
+            audio = self.recorder.stop()
+        except Exception:
+            logger.exception("Impossible d'arrêter la capture audio")
+            with self._state_lock:
+                self.state = IDLE
+            self._events.put(("state", IDLE))
+            return
         self._play_sound("stop.wav")
         self._events.put(("state", TRANSCRIBING))
         threading.Thread(target=self._process, args=(audio,), daemon=True).start()
